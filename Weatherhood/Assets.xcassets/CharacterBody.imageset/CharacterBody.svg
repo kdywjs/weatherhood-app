@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="90" height="172" viewBox="0 0 90 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group" clip-path="url(#clip0_0_29)">
+<path id="Vector" d="M47.5199 31.02H42.2399C39.6883 31.02 37.6199 33.0884 37.6199 35.64V45.54C37.6199 48.0915 39.6883 50.16 42.2399 50.16H47.5199C50.0714 50.16 52.1399 48.0915 52.1399 45.54V35.64C52.1399 33.0884 50.0714 31.02 47.5199 31.02Z" fill="white" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_2" d="M44.88 37.62C54.3572 37.62 62.04 29.3462 62.04 19.14C62.04 8.93375 54.3572 0.659973 44.88 0.659973C35.4028 0.659973 27.72 8.93375 27.72 19.14C27.72 29.3462 35.4028 37.62 44.88 37.62Z" fill="white" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_3" d="M25.0799 44.22L14.5199 48.18L2.63989 91.74L12.5399 97.02L25.7399 67.98M63.3599 44.22L75.2399 49.5L87.1199 91.74L77.2199 97.68L64.0199 68.64" fill="#E2E2E2" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_4" d="M3.29991 91.7399L0.659912 101.64L2.63991 107.58L6.59991 108.9L10.5599 105.6L13.1999 96.3599M77.8799 96.3599L80.5199 106.26L84.4799 108.9L88.4399 106.26L89.0999 101.64L87.1199 91.7399" fill="white" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_5" d="M25.0799 100.32H64.0199L68.6399 151.8H52.7999L45.5399 117.48L40.9199 151.8H24.4199L25.0799 100.32Z" fill="#6E89A6" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_6" d="M32.34 42.9H56.1L58.74 104.28H29.04L32.34 42.9Z" fill="white" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_7" d="M25.7399 44.2199L36.2999 42.2399L41.5799 54.7799L37.6199 108.9H21.1199L23.7599 71.9399L25.7399 44.2199ZM54.1199 42.2399L64.0199 44.2199L67.3199 108.9H50.1599L48.1799 54.7799L54.1199 42.2399Z" fill="#EACB76" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_8" d="M34.98 42.9L30.36 54.78L38.28 61.38M55.44 42.9L60.06 54.78L50.82 61.38M25.74 81.84H34.32M54.12 81.84H62.7" stroke-width="0.99" stroke-linejoin="round" stroke="#596E83"/>
+<path id="Vector_9" d="M27.72 151.8H38.28V160.38H27.72V151.8ZM55.44 151.8H66V160.38H55.44V151.8ZM25.74 160.38H38.28L40.92 168.3L39.6 170.94H16.5L17.16 165.66L25.74 160.38ZM54.78 160.38H67.32L75.9 165.66V170.94H53.46L51.48 168.3L54.78 160.38Z" fill="white" stroke-width="1.32" stroke-linejoin="round" stroke="#596E83"/>
+</g>
+<defs>
+<clipPath id="clip0_0_29">
+<rect width="90" height="172" fill="white"/>
+</clipPath>
+</defs>
+</svg>

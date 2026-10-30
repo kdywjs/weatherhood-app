@@ -1,0 +1,65 @@
+{
+  "source": "User-provided screenshots of Figma weather board 4:2, zKUdPzZ43A0fXpTxpsUiIL",
+  "character": {
+    "node": "68:3",
+    "name": "weatherHood-Violet-Light-02-9587EF",
+    "method": "Built-in imagegen background extraction from downloaded original; alpha retained",
+    "asset": "WeatherhoodVioletLight02"
+  },
+  "backgrounds": {
+    "method": "Built-in imagegen, one scene per asset, screenshot-referenced background only; no characters, text or interface; portrait 9:19.5",
+    "prompts": [
+      [
+        "Sunny",
+        "맑음, top row first image. Clear pastel blue sky, fluffy cream cumulus clouds in lower sides, glowing warm sun in upper right at 24% height, luminous ivory reflective ground across bottom quarter."
+      ],
+      [
+        "Cloudy",
+        "흐림, top row second. Soft silver blue gray layered cumulus clouds, diffuse overcast daylight, pale blue gray polished ground at bottom quarter."
+      ],
+      [
+        "Rain",
+        "비, top row third. Cinematic soft blue rainy sky, gentle visible streaks of rain, distant out of focus city lights at lower sides, wet reflective pavement across lower quarter, cool blue palette, no lightning."
+      ],
+      [
+        "Snow",
+        "눈, top row fourth. Pastel lavender blue snowy winter, soft large falling snowflakes, snow covered distant evergreens framing lower sides, white snowy ground lower quarter."
+      ],
+      [
+        "Hot",
+        "더위, second row first. Bright summer blue sky, strong golden sun upper right, leafy trees at upper left edge, distant small city horizon, golden flower meadow lower quarter. Warm cheerful golden light."
+      ],
+      [
+        "Cold",
+        "추위, second row second. Crisp icy blue winter sky, snowy mountain range on low horizon, frost-covered branches and pine trees near edges, sparkling blue white snow on ground lower quarter."
+      ],
+      [
+        "Wind",
+        "바람, second row third. Blue sky with soft wispy clouds, wind blowing a few golden leaves diagonally near sides, tall golden meadow grasses bending, distant city on low horizon. Keep center clear."
+      ],
+      [
+        "Night",
+        "맑은 밤, second row fourth. Rich indigo starry night, slim glowing crescent moon upper right, distant waterfront city lights, lake at low horizon, dark navy paved foreground bottom quarter."
+      ]
+    ]
+  },
+  "files": {
+    "WeatherhoodVioletLight02": "exec-dc7e5151-e25a-48d7-a5f1-a0f7e64b48ce.png",
+    "SceneSunny": "exec-0586287e-d1fb-4373-bbbd-d9627317b136.png",
+    "SceneCloudy": "exec-2680b1ac-4e2b-4d3d-adb4-23f621b866fc.png",
+    "SceneRain": "exec-4c2ea9dc-abbe-4c9f-824a-c483942a99d2.png",
+    "SceneSnow": "exec-d1d227fd-e8b1-4d18-bda8-9e36cd650db5.png",
+    "SceneHot": "exec-bc562ad6-6dcc-4a9c-9df6-aa22b9e9793b.png",
+    "SceneCold": "exec-5790539e-ddca-4184-a88d-3e71e14de842.png",
+    "SceneWind": "exec-b8ba4f12-46ba-475b-80d8-0f32e5e37a3c.png",
+    "SceneNight": "exec-1cd5efb4-a967-41b3-be14-4879b3b2514d.png"
+  },
+  "differences": [
+    "System font per user; no raster 3D digits",
+    "Native tabs retained",
+    "Mock date/location retained",
+    "8 fully visible scenes; dust/thunder excluded",
+    "No outfit change or animation"
+  ],
+  "date": "2026-10-30"
+}

@@ -1,0 +1,116 @@
+{
+  "source": "https://www.figma.com/design/nIUPdpIqFoqtPBCBPwOJ3N?node-id=19-126",
+  "sessionId": "04e399fd-8789-499e-a107-1404b65ac992",
+  "font": "System font — explicitly approved by user",
+  "scope": "Main tab only; native TabView placeholders for other tabs",
+  "assets": [
+    {
+      "name": "LocationChevron",
+      "node": "19:129",
+      "path": "Weatherhood/Assets.xcassets/LocationChevron.imageset/LocationChevron.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "RainSelected",
+      "node": "19:136",
+      "path": "Weatherhood/Assets.xcassets/RainSelected.imageset/RainSelected.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "Cloud",
+      "node": "19:145",
+      "path": "Weatherhood/Assets.xcassets/Cloud.imageset/Cloud.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "Sun",
+      "node": "19:151",
+      "path": "Weatherhood/Assets.xcassets/Sun.imageset/Sun.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "Rain",
+      "node": "19:179",
+      "path": "Weatherhood/Assets.xcassets/Rain.imageset/Rain.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "CharacterShadow",
+      "node": "19:212",
+      "path": "Weatherhood/Assets.xcassets/CharacterShadow.imageset/CharacterShadow.svg",
+      "usage": "WeatherTheme.swift / WeatherCharacter"
+    },
+    {
+      "name": "CharacterGround",
+      "node": "19:214",
+      "path": "Weatherhood/Assets.xcassets/CharacterGround.imageset/CharacterGround.svg",
+      "usage": "WeatherTheme.swift / WeatherCharacter"
+    },
+    {
+      "name": "CharacterBody",
+      "node": "19:216",
+      "path": "Weatherhood/Assets.xcassets/CharacterBody.imageset/CharacterBody.svg",
+      "usage": "WeatherTheme.swift / WeatherCharacter"
+    },
+    {
+      "name": "UmbrellaStem",
+      "node": "19:226",
+      "path": "Weatherhood/Assets.xcassets/UmbrellaStem.imageset/UmbrellaStem.svg",
+      "usage": "WeatherTheme.swift / WeatherCharacter"
+    },
+    {
+      "name": "UmbrellaCanopy",
+      "node": "19:228",
+      "path": "Weatherhood/Assets.xcassets/UmbrellaCanopy.imageset/UmbrellaCanopy.svg",
+      "usage": "WeatherTheme.swift / WeatherCharacter"
+    },
+    {
+      "name": "CharacterWeather",
+      "node": "19:230",
+      "path": "Weatherhood/Assets.xcassets/CharacterWeather.imageset/CharacterWeather.svg",
+      "usage": "WeatherTheme.swift / WeatherCharacter"
+    },
+    {
+      "name": "RainWindSelected",
+      "node": "19:247",
+      "path": "Weatherhood/Assets.xcassets/RainWindSelected.imageset/RainWindSelected.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "TimelineThumb",
+      "node": "19:268",
+      "path": "Weatherhood/Assets.xcassets/TimelineThumb.imageset/TimelineThumb.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "Play",
+      "node": "19:272",
+      "path": "Weatherhood/Assets.xcassets/Play.imageset/Play.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "Reset",
+      "node": "19:275",
+      "path": "Weatherhood/Assets.xcassets/Reset.imageset/Reset.svg",
+      "usage": "MainWeatherView.swift"
+    },
+    {
+      "name": "TabWeather",
+      "node": "19:280",
+      "path": "Weatherhood/Assets.xcassets/TabWeather.imageset/TabWeather.svg",
+      "usage": "ContentView.swift / TabView"
+    },
+    {
+      "name": "TabInformation",
+      "node": "19:284",
+      "path": "Weatherhood/Assets.xcassets/TabInformation.imageset/TabInformation.svg",
+      "usage": "ContentView.swift / TabView"
+    },
+    {
+      "name": "TabProfile",
+      "node": "19:297",
+      "path": "Weatherhood/Assets.xcassets/TabProfile.imageset/TabProfile.svg",
+      "usage": "ContentView.swift / TabView"
+    }
+  ]
+}
