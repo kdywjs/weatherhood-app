@@ -1,4 +1,43 @@
-# Weatherhood urban main screen QA — 2026-10-30
+# Weatherhood profile screen QA — 2026-11-08
+
+final result: passed
+
+## Scope and evidence
+
+- Visual-only local profile implementation; no production account, alerts, location or wardrobe services.
+- Source: `DesignReference/profile-approved.png` (1263 × 1246 two-panel concept).
+- Implementation: `DesignReference/QA/profile/top.png`, `bottom.png` (1206 × 2622 each; iPhone 17 Pro, 402 × 874 points at 3x, iOS 26.5).
+- Opened the source and both final rendered captures together in one comparison input. Compared app-owned regions relative to each portrait viewport; excluded reference outer margins/captions and native device chrome. This is not pixel-exact matching: reference is a generated concept, system fonts and original approved app mascot take precedence.
+- States: top of profile and scroll end. Bottom screenshot is further down than the reference's right panel because real menu rows are 60pt and use safe-area insets; settings remain above in the same scroll view. All account actions are visible at scroll end.
+- Focused text, profile image and logout review used the full-resolution captures; those regions are legible without separate crops.
+
+## Findings and iteration
+
+- [P2, resolved] First avatar showed the whole body rather than the reference portrait. Increased crop scale to 1.45, top-anchored, retaining original Violet-Light-02 asset. Final top capture confirms head and upper body inside the white-bordered circle.
+- [P3] Native iOS 26 back chevron includes the system glass backing. Retained native back behavior rather than drawing a replacement. No back label or page title remains.
+- [P3] Native off-switch is subtler than the generated reference. Setting is local-only; current character is static.
+- No remaining P0/P1/P2 visual findings in the inspected states.
+
+## Fidelity surfaces
+
+- Typography: iOS system Korean text, bold name and headings; no missing font or zero-width text. All source menu labels preserved.
+- Layout: overlapping circular portrait, 24pt horizontal margins, 32pt section gaps, 60pt rows, 20pt card corners, scrollable content. No bottom tabs. Main screen remains independent of profile scrolling.
+- Colors: brand #9587EF, pale lavender background, white cards, dark violet ink and muted logout. Deliberately flat brand fill rather than reproducing generated image lighting.
+- Imagery: existing approved app mascot reused, not generated mockup's altered face. No full-screen image masquerades as controls.
+- Content: membership deletion inside account management, quiet logout at bottom; no large destructive button on profile. Unimplemented actions explicitly disclose their status rather than claiming service success.
+
+## Verification / remaining limits
+
+- Debug simulator build passed; installed and launched. Top and end-of-scroll captures inspected after correction.
+- Existing Foundation weather-state checks passed (selection/playback/scrub/reset/12 scenes/ruler).
+- Native NavigationStack push is wired to the existing profile callback; native back button preserved through minimal back-title configuration.
+- Actual tap/swipe, nickname entry and VoiceOver were NOT automated: computer-use runtime failed to start (missing Node runtime). Rendering used DEBUG-only launch arguments `--profile-preview` and `--profile-bottom`. These do not alter normal launches.
+- Nickname and motion preference persist locally. Logout/deletion show honest prototype notices and never alter accounts or data. Server integration remains out of scope.
+- Additional devices, landscape and largest Dynamic Type sizes require manual follow-up.
+
+---
+
+# Historical weather-main QA — 2026-10-30
 
 final result: passed
 
