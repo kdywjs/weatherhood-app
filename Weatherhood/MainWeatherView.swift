@@ -4,7 +4,7 @@ import Combine
 /// Approved urban illustration plates; all interface controls remain native SwiftUI.
 struct MainWeatherView: View {
     @Binding var state: MainWeatherState
-    var onProfile: () -> Void = {}
+    var onProfile: (WeatherScene, Int, Bool) -> Void = { _, _, _ in }
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var notice: MainNotice?
@@ -67,10 +67,10 @@ struct MainWeatherView: View {
 
     private var header: some View {
         Text("WEATHERHOOD")
-            .font(.system(.caption2, design: .rounded, weight: .heavy)).tracking(3)
+            .font(WeatherhoodTypography.font(.caption2, weight: .bold)).tracking(3)
             .frame(maxWidth: .infinity).frame(height: 44)
             .overlay(alignment: .trailing) {
-                Button { state.pause(); onProfile() } label: {
+                Button { state.pause(); onProfile(scene, temperature, previewScene != nil) } label: {
                     Image(systemName: "person.crop.circle").font(.title3).frame(width: 44, height: 44)
                 }
                 .buttonStyle(.plain).accessibilityLabel("마이 화면")
@@ -106,14 +106,14 @@ struct MainWeatherView: View {
             Text(title).lineLimit(1)
             Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold))
         }
-        .font(.caption.weight(.semibold)).foregroundStyle(WeatherTheme.ink)
+        .font(WeatherhoodTypography.font(.caption, weight: .bold)).foregroundStyle(WeatherTheme.ink)
         .padding(.horizontal, 13).frame(minHeight: 44).frame(maxWidth: .infinity)
         .background(.white.opacity(0.86), in: Capsule())
     }
     private func sceneContent(height: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("\(temperature)°")
-                .font(.system(size: temperatureSize, weight: .heavy, design: .rounded)).monospacedDigit()
+                .font(WeatherhoodTypography.scaledFont(size: temperatureSize, weight: .bold)).monospacedDigit()
                 .foregroundStyle(scene.temperatureColor)
                 .shadow(color: .white.opacity(0.85), radius: 1, x: 0, y: -2)
                 .shadow(color: scene.temperatureColor.opacity(0.25), radius: 2, x: 1, y: 4)
@@ -135,7 +135,7 @@ struct MainWeatherView: View {
                         Image(systemName: "chevron.right").font(.caption2.bold())
                     }
                 } icon: { Image(systemName: scene.symbol) }
-                .font(.caption.weight(.semibold)).foregroundStyle(WeatherTheme.ink)
+                .font(WeatherhoodTypography.font(.caption, weight: .bold)).foregroundStyle(WeatherTheme.ink)
                 .padding(.horizontal, 14).frame(minHeight: 44)
                 .background(.white.opacity(0.86), in: Capsule())
             }
@@ -150,7 +150,7 @@ struct MainWeatherView: View {
     private var timeline: some View {
         VStack(spacing: 0) {
             Text(previewScene == nil ? "\(state.timeLabel) · 샘플 예보" : "\(scene.title) · 디자인 미리보기")
-                .font(.caption2.bold()).foregroundStyle(ink)
+                .font(WeatherhoodTypography.font(.caption2, weight: .bold)).foregroundStyle(ink)
                 .padding(.horizontal, 12).padding(.vertical, 4)
                 .background(scene.isDark || scene == .rain ? Color.black.opacity(0.5) : Color.white.opacity(0.8), in: Capsule())
             HStack(spacing: 4) {
@@ -189,7 +189,7 @@ struct MainWeatherView: View {
                     Text("아바타 꾸미기")
                     Image(systemName: "chevron.right").font(.caption2.bold())
                 }
-                .font(.caption.bold()).padding(.horizontal, 16).frame(minHeight: 44)
+                .font(WeatherhoodTypography.font(.caption, weight: .bold)).padding(.horizontal, 16).frame(minHeight: 44)
                 .background(.white.opacity(0.86), in: Capsule())
             }
             Button { previewScene = nil; state.resetToCurrent() } label: {
@@ -237,7 +237,7 @@ private struct SceneTimeRuler: View {
                 HStack {
                     ForEach(0..<5) { index in
                         Text(String(format: "%02d:%02d", (start + index * 120) / 60, (start + index * 120) % 60))
-                            .font(.system(size: 9, weight: .semibold)).monospacedDigit().frame(maxWidth: .infinity)
+                            .font(WeatherhoodTypography.font(size: 9, relativeTo: .caption2, weight: .bold)).monospacedDigit().frame(maxWidth: .infinity)
                     }
                 }
             }

@@ -129,3 +129,22 @@ final result: passed
 - [x] Eight local background assets and provenance
 - [x] Main state checks and visual corrections
 - [x] No Figma edits, server edits, dependency installs or Git commits
+# LINE Seed KR 통일 검증 — 2026-11-08
+
+## 마이페이지 3안 적용 — 후속 검증
+
+- 기준: `DesignReference/profile-three-approved.png`. 사용자 요청으로 캐릭터 움직임 줄이기 메뉴와 해당 앱 설정을 제거했습니다.
+- 흰 바탕, 가로 프로필, 연보라 꾸미기 배너, 아이콘 메뉴와 섹션 구분선 적용. LINE Seed KR 유지. 기존 계정 관리 및 로그아웃 안내 동작 유지.
+- 결과: Debug 시뮬레이터 빌드 PASS, MainWeatherStateChecks PASS, diff 공백 검사 PASS. `DesignReference/QA/profile-three/top.png`, `bottom.png`에서 배너·본문·계정 관리·로그아웃 시각 확인.
+- 원본 시안과 화면 비율이 달라 메뉴는 스크롤로 이어집니다. iOS 기본 뒤로가기 및 기존 원본 캐릭터를 사용하므로 생성 이미지와 완전한 픽셀 일치는 아닙니다.
+- 제한: 전체 탭 상호작용, 실기기 및 모든 접근성 크기는 이번 변경 후 검증하지 않았습니다. 서버 연결 기능은 기존 준비 중 안내 상태입니다.
+- Figma: 기존 로컬 플러그인에 ‘마이페이지 3안 반영’ 추가. 편집 가능한 텍스트/아이콘/배너를 별도 마이페이지 프레임으로 생성하며 기존 프레임은 보존합니다. 직접 연결 호출 한도 때문에 실제 Figma 실행과 렌더 검증은 미완료입니다. JS 문법 및 기존 폰트 전환 모의 테스트 통과는 실제 Figma 렌더 검증을 대체하지 않습니다.
+
+이 문서의 과거 검증에 기록된 시스템 서체 기준은 현재 적용 기준이 아닙니다. 현재 기준은 인접 `weatherhood-specs/docs/typography.md`입니다.
+
+- 공식 Regular/Bold TTF 번들 포함, 프로세스 등록 및 PostScript 이름 확인. 앱 실행 시 누락/등록 실패를 검출합니다.
+- Debug 시뮬레이터 빌드 통과. 기존 MainWeatherStateChecks 통과. 프로젝트 plist 및 diff 공백 검사 통과.
+- 메인 기본 크기와 마이페이지 상단/설정 항목의 LINE Seed KR 표시를 시각 확인했습니다. 증적: `DesignReference/QA/typography/main.png`, `profile.png`.
+- 접근성 medium의 메인 하단 글자 확대와 버튼 표시를 확인했습니다 (`main-accessibility-footer.png`). 전체 화면·모든 크기 및 실제 기기 검증은 수행하지 않았습니다. 시뮬레이터 크기는 원래 large로 복원했습니다.
+- SF Symbols와 OS 소유 경고창·메뉴·상태 표시줄은 시스템 표시를 유지합니다.
+- Figma 직접 연결은 호출 한도로 미실행. 로컬 플러그인의 폰트 전환 함수 모의 테스트에서 Regular/Bold 매핑, 기존 스타일 갱신, 아이콘 제외, 대상 폰트 누락 시 중단 및 JS 문법 검증을 통과했습니다. 실제 Figma 파일 반영·레이아웃 검증은 사용자 플러그인 실행 후 확인해야 합니다.
