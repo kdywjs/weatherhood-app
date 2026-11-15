@@ -5,10 +5,21 @@ import Combine
 struct MainWeatherView: View {
     @Binding var state: MainWeatherState
     var onProfile: (WeatherScene, Int, Bool) -> Void = { _, _, _ in }
+    var showsSelectedDate = false
+    @State private var showsWeekly = false
+    @GestureState(resetTransaction: Transaction(animation: .easeInOut(duration: 0.2)))
+    private var switcherDrag: CGFloat = 0
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var notice: MainNotice?
     @State private var previewScene: WeatherScene?
+    @State private var effectPreview = false
+    @State private var previewRain: RainPreviewLevel = .moderate
+    @State private var previewWind: WindPreviewLevel = .light
+    @State private var previewSky: SkyPreviewLevel = .overcast
+    @State private var developerValues = WeatherDeveloperValues()
+    @State private var showsDeveloperSettings = false
     @ScaledMetric(relativeTo: .largeTitle) private var temperatureSize = 88
     private let clock = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     private var scene: WeatherScene {
@@ -16,38 +27,113 @@ struct MainWeatherView: View {
     }
     private var ink: Color { scene.isDark || scene == .rain ? .white : WeatherTheme.ink }
     private var temperature: Int { previewScene?.sampleTemperature ?? state.selectedForecast.temperature }
+    private var displayedCondition: String {
+        guard effectPreview else { return scene.title }
+        if developerValues.slotMissing { return "시간 정보 없음" }
+        return developerValues.precipitation == "none" ? previewSky.rawValue : developerValues.precipitationTitle
+    }
+    private var hasRainEffect: Bool {
+        effectPreview || scene == .rain || scene == .rainNight || scene == .storm
+    }
+    private var developerEffects: WeatherEffectConfiguration {
+        developerValues.effectConfiguration(sky: previewSky, rain: previewRain, wind: previewWind)
+    }
+    private var backgroundAsset: String {
+        if effectPreview { return developerValues.slotMissing ? WeatherScene.cloudy.asset : previewSky.asset }
+        return hasRainEffect ? WeatherScene.cloudy.asset : scene.asset
+    }
+    private var backgroundShade: Double {
+        if effectPreview { return developerValues.slotMissing ? 0 : previewSky.shade }
+        guard hasRainEffect && !effectPreview else { return 0 }
+        return 0.08
+    }
+    // The thumb and forecast share a normalized position, regardless of screen width.
+    private var weeklyProgress: CGFloat {
+        min(1, max(0, (showsWeekly ? 1 : 0) + switcherDrag))
+    }
 
     var body: some View {
         GeometryReader { geometry in
-            let height = max(700, geometry.size.height)
+            let height = max(560, geometry.size.height)
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     header
                     selectors.padding(.top, 8)
                     if typeSize.isAccessibilitySize {
                         sceneContent(height: temperatureSize * 1.5 + 120)
-                        Image(scene.asset).resizable().scaledToFit()
+                            .opacity(1 - weeklyProgress)
+                        Image(backgroundAsset).resizable().scaledToFit()
+                            .overlay(Color.black.opacity(backgroundShade))
                             .accessibilityLabel("도시의 \(scene.title) 풍경과 보라색 오리너구리")
                             .padding(.vertical, 16)
+                            .opacity(1 - weeklyProgress)
                     } else {
                         sceneContent(height: height - 252)
+                            .opacity(1 - weeklyProgress)
                     }
                     timeline
+                        .opacity(1 - weeklyProgress)
                     footer
+                        .opacity(1 - weeklyProgress)
                 }
                 .frame(minHeight: height, alignment: .top)
                 .padding(.horizontal, 24)
-                .background {
-                    if !typeSize.isAccessibilitySize {
-                        Image(scene.asset).resizable().scaledToFill()
-                            .frame(width: geometry.size.width,
-                                   height: height + geometry.safeAreaInsets.top + geometry.safeAreaInsets.bottom + 40)
-                            .clipped().accessibilityHidden(true)
-                    }
-                }
+                .contentShape(Rectangle())
             }
             .scrollIndicators(.hidden)
-            .background((scene.isDark || scene == .rain ? Color(red: 0.10, green: 0.16, blue: 0.25) : Color(red: 0.84, green: 0.91, blue: 0.98)).ignoresSafeArea())
+            .scrollDisabled(showsWeekly)
+            .allowsHitTesting(!showsWeekly)
+            .accessibilityHidden(showsWeekly)
+            .overlay(alignment: .top) {
+                WeatherInfoView(state: $state, componentOnly: true)
+                            .scrollDisabled(false)
+                            .padding(.horizontal, 24)
+                            .padding(.top, typeSize.isAccessibilitySize ? 160 : 108)
+                            .contentShape(Rectangle())
+                            .simultaneousGesture(DragGesture(minimumDistance: 30).onEnded { value in
+                                guard value.translation.width > 60,
+                                      abs(value.translation.width) > abs(value.translation.height) * 1.5 else { return }
+                                closeWeekly()
+                            })
+                            .accessibilityAction(named: "주간 날씨 닫기", closeWeekly)
+                            .offset(x: geometry.size.width * (1 - weeklyProgress))
+                            .allowsHitTesting(showsWeekly && switcherDrag == 0)
+                            .accessibilityHidden(!showsWeekly)
+            }
+            .clipped()
+        }
+        .safeAreaInset(edge: .bottom, spacing: 8) {
+            VStack(spacing: 0) {
+                #if DEBUG
+                developerMenu
+                #endif
+            weatherSwitcher
+                .padding(.horizontal, 24)
+                .padding(.bottom, 8)
+            }
+        }
+        .background {
+            GeometryReader { backgroundGeometry in
+                // Rain is animated separately; never use a plate with baked-in streaks.
+                Image(backgroundAsset)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: backgroundGeometry.size.width, height: backgroundGeometry.size.height)
+                    .clipped()
+                    .overlay(Color.black.opacity(backgroundShade))
+                    .overlay {
+                        if !reduceMotion && hasRainEffect {
+                            RainBackground(active: scenePhase == .active,
+                                           rain: effectPreview ? previewRain : .moderate,
+                                           wind: effectPreview ? previewWind : .light,
+                                           effects: effectPreview ? developerEffects : nil)
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                    .accessibilityHidden(true)
+            }
+            .ignoresSafeArea()
         }
         .foregroundStyle(ink)
         .preferredColorScheme(scene.isDark || scene == .rain ? .dark : .light)
@@ -58,11 +144,119 @@ struct MainWeatherView: View {
         .onChange(of: scenePhase) { _, phase in if phase != .active { state.pause() } }
         .onDisappear { state.pause() }
         #if DEBUG
+        .sheet(isPresented: $showsDeveloperSettings) {
+            WeatherDeveloperSettings(values: $developerValues, sky: $previewSky,
+                                     enabled: $effectPreview, rain: $previewRain, wind: $previewWind)
+        }
+        .onChange(of: effectPreview) { _, enabled in
+            if enabled { state.pause() }
+        }
         .onAppear {
+            if ProcessInfo.processInfo.environment["WEATHERHOOD_DEVELOPER_SETTINGS"] == "1" {
+                showsDeveloperSettings = true
+            }
             if let value = ProcessInfo.processInfo.environment["WEATHERHOOD_PREVIEW_SCENE"],
                let selection = WeatherScene(rawValue: value) { selectPreview(selection) }
         }
         #endif
+    }
+
+    #if DEBUG
+    private var developerMenu: some View {
+        Menu {
+            Button("스펙 전체 설정") { state.pause(); showsDeveloperSettings = true }
+            Toggle("배경 효과 미리보기", isOn: $effectPreview)
+            Picker("강수 형태", selection: $developerValues.precipitation) {
+                ForEach(WeatherDeveloperValues.precipitationOptions, id: \.0) { Text($0.1).tag($0.0) }
+            }
+            Picker("하늘 상태 · 가안", selection: $previewSky) {
+                ForEach(SkyPreviewLevel.allCases) { sky in
+                    Text(sky.rawValue).tag(sky)
+                }
+            }
+            Picker("강수 단계 · 수동 비교", selection: Binding(get: { previewRain }, set: { previewRain = $0; developerValues.manualEffects = true })) {
+                ForEach(RainPreviewLevel.allCases) { level in
+                    Text(level.rawValue).tag(level)
+                }
+            }
+            Picker("바람 단계 · 수동 비교", selection: Binding(get: { previewWind }, set: { previewWind = $0; developerValues.manualEffects = true })) {
+                ForEach(WindPreviewLevel.allCases) { level in
+                    Text(level.rawValue).tag(level)
+                }
+            }
+            Text("단계 선택 후 미리보기를 켜세요. 수치는 테스트값입니다.")
+            Toggle("수동 강도 비교", isOn: $developerValues.manualEffects)
+            Text("배경: 하늘·강수·풍속. 기온별 의상·대기질 등급별 마스크는 미연동입니다. 안개·연무·시각별 낮밤 효과는 없습니다.")
+            if reduceMotion { Text("동작 줄이기가 켜져 있어 효과가 숨겨집니다.") }
+            Button("미리보기 종료", role: .cancel) { effectPreview = false }
+        } label: {
+            VStack(spacing: 2) {
+                Label(effectPreview ? "개발자 모드 · 테스트 중" : "개발자 모드", systemImage: "slider.horizontal.3")
+                if effectPreview {
+                    Text("\(previewSky.rawValue) · \(developerValues.slotMissing ? "시간 정보 없음" : developerValues.precipitationTitle) · 가안")
+                    Text(developerValues.manualEffects ? "수동: \(previewRain.rawValue) / \(previewWind.rawValue)" : "설정 데이터로 배경 연출 중")
+                }
+            }
+            .font(WeatherhoodTypography.font(.caption2, weight: .bold))
+            .foregroundStyle(WeatherTheme.ink)
+            .padding(.horizontal, 12)
+            .frame(minHeight: 44)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .environment(\.colorScheme, .light)
+        }
+        .padding(.bottom, 4)
+    }
+    #endif
+
+    private var weatherSwitcher: some View {
+        GeometryReader { geometry in
+            let segment = (geometry.size.width - 6) / 2
+            let position = segment * weeklyProgress
+            ZStack(alignment: .leading) {
+                Capsule().fill(.ultraThinMaterial).padding(.vertical, 4)
+                Capsule()
+                    .fill(.white.opacity(0.88))
+                    .frame(width: segment, height: 30)
+                    .offset(x: 3 + position)
+                HStack(spacing: 0) {
+                    switchLabel("현재 날씨", selected: position < segment / 2)
+                    switchLabel("주간 날씨", selected: position >= segment / 2)
+                }
+                .padding(.horizontal, 3)
+            }
+            .contentShape(Rectangle())
+            .gesture(DragGesture(minimumDistance: 0)
+                .updating($switcherDrag) { value, translation, transaction in
+                    transaction.animation = nil
+                    translation = value.translation.width / max(1, segment)
+                }
+                .onChanged { _ in state.pause() }
+                .onEnded { value in
+                    let isTap = abs(value.translation.width) < 4 && abs(value.translation.height) < 4
+                    let target = isTap
+                        ? value.location.x > geometry.size.width / 2
+                        : (showsWeekly ? segment : 0) + value.predictedEndTranslation.width > segment / 2
+                    if target != showsWeekly {
+                        if target { openWeekly() } else { closeWeekly() }
+                    }
+                })
+        }
+        .frame(height: 44)
+        .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : 216)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("날씨 화면 전환")
+        .accessibilityValue(showsWeekly ? "주간 날씨" : "현재 날씨")
+        .accessibilityAdjustableAction { direction in
+            if direction == .increment { openWeekly() }
+            else if direction == .decrement { closeWeekly() }
+        }
+    }
+
+    private func switchLabel(_ title: String, selected: Bool) -> some View {
+            Text(title)
+                .font(WeatherhoodTypography.font(.footnote, weight: .bold))
+                .foregroundStyle(selected ? Color(red: 0.36, green: 0.18, blue: 0.85) : .white)
+                .frame(maxWidth: .infinity, minHeight: 44)
     }
 
     private var header: some View {
@@ -77,79 +271,70 @@ struct MainWeatherView: View {
             }
     }
     private var selectors: some View {
-        Group {
-            if typeSize.isAccessibilitySize {
-            VStack(spacing: 8) { locationButton; dateMenu }
-            } else {
-                HStack(spacing: 10) { locationButton; dateMenu }
+        VStack(spacing: 8) {
+            locationButton
+            if showsSelectedDate {
+                Text("\(state.selectedDay.dateLabel) (\(state.selectedDay.weekday))")
+                    .font(WeatherhoodTypography.font(.callout, weight: .bold))
+                    .accessibilityLabel("선택 날짜 \(state.selectedDay.dateLabel), \(state.selectedDay.weekday)요일")
             }
         }
+        .frame(maxWidth: .infinity)
     }
     private var locationButton: some View {
-        Button { state.pause(); notice = .location } label: { pill("서울 중구", icon: "mappin.and.ellipse") }
-            .buttonStyle(.plain)
-    }
-    private var dateMenu: some View {
-        Menu {
-            ForEach(state.days) { day in
-                Button { state.selectDay(day.id); previewScene = nil } label: {
-                    if state.selectedDayIndex == day.id {
-                        Label("\(day.shortLabel) · \(day.dateLabel)", systemImage: "checkmark")
-                    } else { Text("\(day.shortLabel) · \(day.dateLabel)") }
-                }
-            }
-        } label: { pill("\(state.selectedDay.shortLabel) · \(state.selectedDay.dateLabel)", icon: "calendar") }
-    }
-    private func pill(_ title: String, icon: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-            Text(title).lineLimit(1)
-            Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold))
+        Button { state.pause(); notice = .location } label: {
+            Text("서울 중구")
+                .font(WeatherhoodTypography.font(.caption, weight: .bold))
+                .foregroundStyle(ink)
+                .padding(.horizontal, 20)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
         }
-        .font(WeatherhoodTypography.font(.caption, weight: .bold)).foregroundStyle(WeatherTheme.ink)
-        .padding(.horizontal, 13).frame(minHeight: 44).frame(maxWidth: .infinity)
-        .background(.white.opacity(0.86), in: Capsule())
+        .buttonStyle(.plain)
+        .accessibilityLabel("서울 중구, 지역 선택")
     }
     private func sceneContent(height: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("\(temperature)°")
+                Text(effectPreview ? (developerValues.slotMissing || developerValues.missing.contains("temperature") ? "—°" : "\(developerValues.numbers["temperature", default: 12].formatted())°") : "\(temperature)°")
                 .font(WeatherhoodTypography.scaledFont(size: temperatureSize, weight: .bold)).monospacedDigit()
                 .foregroundStyle(scene.temperatureColor)
                 .shadow(color: .white.opacity(0.85), radius: 1, x: 0, y: -2)
                 .shadow(color: scene.temperatureColor.opacity(0.25), radius: 2, x: 1, y: 4)
                 .lineLimit(1).minimumScaleFactor(0.6)
-                .accessibilityLabel("\(temperature)도").padding(.top, 24)
-            Menu {
-                Button("선택 시간의 샘플 예보로 돌아가기") { previewScene = nil }
-                Section("디자인 미리보기 · 실제 날씨 아님") {
-                    ForEach(WeatherScene.allCases) { item in
-                        Button { selectPreview(item) } label: {
-                            Label(item.title, systemImage: item.symbol)
-                        }
-                    }
-                }
-            } label: {
-                Label {
-                    HStack(spacing: 7) {
-                        Text(scene.title)
-                        Image(systemName: "chevron.right").font(.caption2.bold())
-                    }
-                } icon: { Image(systemName: scene.symbol) }
+                .contentShape(Rectangle())
+            .accessibilityLabel(effectPreview ? "테스트 기온" : "\(temperature)도")
+            .padding(.top, 24)
+                Label(displayedCondition, systemImage: effectPreview ? "testtube.2" : scene.symbol)
                 .font(WeatherhoodTypography.font(.caption, weight: .bold)).foregroundStyle(WeatherTheme.ink)
                 .padding(.horizontal, 14).frame(minHeight: 44)
                 .background(.white.opacity(0.86), in: Capsule())
+            .accessibilityLabel(displayedCondition)
+            if effectPreview {
+                Text(developerValues.informationSummary)
+                    .font(WeatherhoodTypography.font(.caption2))
+                    .foregroundStyle(WeatherTheme.ink)
+                    .padding(10)
+                    .background(.white.opacity(0.85), in: RoundedRectangle(cornerRadius: 12))
+                    .padding(.top, 8)
             }
-            .accessibilityLabel("\(scene.title), 날씨별 디자인 미리보기")
             Spacer(minLength: 0)
             Color.clear.frame(height: 1)
                 .accessibilityElement()
                 .accessibilityLabel("손을 흔드는 보라색 오리너구리 웨더후드")
         }
         .frame(maxWidth: .infinity, alignment: .leading).frame(height: height)
+        .contentShape(Rectangle())
+        .simultaneousGesture(DragGesture(minimumDistance: 30).onEnded { value in
+            guard !showsWeekly,
+                  value.translation.width < -60,
+                  abs(value.translation.width) > abs(value.translation.height) * 1.5 else { return }
+            openWeekly()
+        })
+        .accessibilityAction(named: "주간 날씨 보기", openWeekly)
     }
     private var timeline: some View {
         VStack(spacing: 0) {
-            Text(previewScene == nil ? "\(state.timeLabel) · 샘플 예보" : "\(scene.title) · 디자인 미리보기")
+            Text(effectPreview ? String(format: "%02d:00 · 개발자 테스트", developerValues.hour) : (previewScene == nil ? "\(state.timeLabel) · 샘플 예보" : "\(scene.title) · 디자인 미리보기"))
                 .font(WeatherhoodTypography.font(.caption2, weight: .bold)).foregroundStyle(ink)
                 .padding(.horizontal, 12).padding(.vertical, 4)
                 .background(scene.isDark || scene == .rain ? Color.black.opacity(0.5) : Color.white.opacity(0.8), in: Capsule())
@@ -168,6 +353,15 @@ struct MainWeatherView: View {
             .buttonStyle(.plain)
         }
     }
+    private func openWeekly() {
+        state.pause()
+        withAnimation(.easeInOut(duration: 0.2)) { showsWeekly = true }
+    }
+
+    private func closeWeekly() {
+        withAnimation(.easeInOut(duration: 0.2)) { showsWeekly = false }
+    }
+
     private func scrub(_ minute: Int) {
         previewScene = nil
         state.scrub(to: Double(minute))

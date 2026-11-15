@@ -68,20 +68,15 @@ enum WeatherScene: String, CaseIterable, Identifiable, Sendable {
         case .rainNight: 14
         }
     }
-    static func forecast(_ condition: WeatherCondition, minute: Int) -> Self {
+    static func forecast(_ condition: WeatherCondition, minute _: Int) -> Self {
+        // Solar times are not connected to the app yet. Do not infer a scene from clock time.
         switch condition {
-        case .rainy, .rainAndWind: minute < 360 || minute >= 1080 ? .rainNight : .rain
+        case .rainy, .rainAndWind: .rain
         case .cloudy: .cloudy
-        case .sunny:
-            // Fixed demo windows, not real local sunrise/sunset calculations.
-            switch minute {
-            case 360..<420: .dawn
-            case 420..<1020: .sunny
-            case 1020..<1080: .sunset
-            default: .night
-            }
+        case .sunny: .sunny
         }
     }
+
 }
 
 enum WeatherCondition: String, Sendable {

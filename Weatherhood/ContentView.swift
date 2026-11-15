@@ -7,19 +7,15 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            MainWeatherView(state: $weather, onProfile: { scene, temperature, preview in
-                weather.pause()
-                profileWeather = (scene, temperature, preview)
-                showsProfile = true
-            })
-                .toolbar(.hidden, for: .navigationBar)
-                .navigationDestination(isPresented: $showsProfile) {
+            MainWeatherView(state: $weather, onProfile: openProfile)
+            .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(isPresented: $showsProfile) {
                     ProfileView(
                         scene: profileWeather?.scene ?? WeatherScene.forecast(weather.selectedForecast.condition, minute: weather.minute),
                         temperature: profileWeather?.temperature ?? weather.selectedForecast.temperature,
                         weatherCaption: profileWeather?.preview == true ? "디자인 미리보기" : "\(weather.dateTimeLabel) · 샘플 예보"
                     )
-                }
+            }
         }
         .tint(.accentColor)
         #if DEBUG
@@ -30,6 +26,12 @@ struct ContentView: View {
             }
         }
         #endif
+    }
+
+    private func openProfile(scene: WeatherScene, temperature: Int, preview: Bool) {
+        weather.pause()
+        profileWeather = (scene, temperature, preview)
+        showsProfile = true
     }
 }
 

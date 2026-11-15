@@ -49,15 +49,11 @@ struct MainWeatherStateChecks {
         precondition(WeatherScene.allCases.count == 12)
         precondition(Set(WeatherScene.allCases.map(\.asset)).count == 12)
         precondition(WeatherScene.forecast(.sunny, minute: 720) == .sunny)
-        precondition(WeatherScene.forecast(.sunny, minute: 1260) == .night)
-        precondition(WeatherScene.forecast(.rainAndWind, minute: 1260) == .rainNight)
-        for (minute, expected) in [(359, WeatherScene.night), (360, .dawn), (419, .dawn),
-                                   (420, .sunny), (1019, .sunny), (1020, .sunset),
-                                   (1079, .sunset), (1080, .night), (1439, .night)] {
-            precondition(WeatherScene.forecast(.sunny, minute: minute) == expected)
+        for minute in [0, 359, 360, 419, 420, 1019, 1020, 1079, 1080, 1260, 1439] {
+            precondition(WeatherScene.forecast(.sunny, minute: minute) == .sunny)
+            precondition(WeatherScene.forecast(.rainy, minute: minute) == .rain)
+            precondition(WeatherScene.forecast(.rainAndWind, minute: minute) == .rain)
         }
-        precondition(WeatherScene.forecast(.rainy, minute: 360) == .rain)
-        precondition(WeatherScene.forecast(.rainy, minute: 1080) == .rainNight)
         precondition(WeatherScene.allCases.filter(\.isDark).count == 3)
         precondition(WeatherScene.dawn.previewMinute == 360)
         precondition(WeatherScene.sunset.previewMinute == 1050)
@@ -73,6 +69,6 @@ struct MainWeatherStateChecks {
         precondition(SceneRuler.minute(start: 959, fraction: 2) == 1439)
         precondition(SceneRuler.minute(start: 0, fraction: -1) == 0)
         precondition(SceneRuler.minute(start: 660, fraction: .nan) == 660)
-        print("PASS: selection, playback, scrubbing, bounds, reset, fixtures, 12 scenes, dawn/sunset/night boundaries, ruler windows and drag conversion")
+        print("PASS: selection, playback, scrubbing, bounds, reset, fixtures, 12 scenes, no inferred dawn/sunset/night, ruler windows and drag conversion")
     }
 }

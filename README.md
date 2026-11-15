@@ -1,88 +1,61 @@
 # Weatherhood iOS
 
-Swift 6 + SwiftUI 기반 iOS 전용 앱. 외부 패키지 의존성은 없습니다.
+Swift 6·SwiftUI·SpriteKit 기반 iOS 앱이다. 외부 패키지 의존성은 없으며 Xcode에서 실행한다. 기능 요구사항의 원본은 [날씨 표현](https://github.com/kdywjs/weatherhood-specs/blob/main/specs/weather-presentation/requirements.md), [주간 날씨](https://github.com/kdywjs/weatherhood-specs/blob/main/specs/weather-information/requirements.md), [캐릭터 선택](https://github.com/kdywjs/weatherhood-specs/blob/main/specs/character-selection/requirements.md)이다.
 
-## 구현 범위
+## 현재 실행 범위
 
-- Figma [날씨별 시안 v0.9](https://www.figma.com/design/zKUdPzZ43A0fXpTxpsUiIL?node-id=4-2)의 사용자 제공 스크린샷 기반 메인 날씨 탭
-- LINE Seed KR로 앱 작성 텍스트 통일: 제목·버튼 Bold, 본문 Regular. 공통 기준은 인접 specs 레포의 `docs/typography.md`
-- 승인한 부드러운 도시 스타일의 날씨·시간대 12종을 `Urban*.imageset`으로 저장. 캐릭터와 배경·접지 그림자는 한 장의 일러스트이며 UI는 네이티브 컨트롤
-- 위치·날짜 캡슐 버튼 / 왼쪽 기온 / 중앙 캐릭터 / 하단 시간 눈금과 꾸미기 버튼
-- 날짜 메뉴 선택, 시간 눈금 드래그·이전/다음 시간, 재생·정지, 샘플 현재 시각으로 초기화
-- 날씨 버튼에서 맑음·흐림·비·눈·더위·추위·바람·천둥번개·일출·노을·맑은 밤·비 오는 밤 미리보기 선택
-- 하루 끝(23:59), 탭 전환, 백그라운드 진입 시 재생 정지
-- 하단 탭 제거. 시간 눈금과 재생/꾸미기/초기화는 하단에 정렬. 오른쪽 위 프로필 버튼은 NavigationStack으로 마이페이지를 표시
-- 마이페이지: 메인과 연결된 날씨 헤더·가로형 프로필·28pt 이름·연보라 꾸미기 배너, 아이콘 메뉴와 섹션 구분선. 메뉴 오른쪽 화살표 표시(앱 버전·로그아웃 제외), 계정 관리 바로 아래 로그아웃 배치. 회원 탈퇴는 계정 관리 내부에 유지
-- 마이페이지는 스와이프 뒤로가기를 막고 상단 뒤로가기 버튼 및 세로 스크롤을 유지. 다른 화면으로 이동하면 기존 제스처 상태를 복원
-- 알림 설정 아래 위치 권한 설정은 iOS 앱 설정으로 이동. 위치 권한 요청은 아직 구현하지 않아 위치 항목이 없을 수 있음. 오픈소스 라이선스는 코드 아이콘과 준비 중 안내를 표시
-- 닉네임은 기기에 저장. 캐릭터 움직임 줄이기 메뉴와 앱 자체 선호 저장은 제거. 현재 캐릭터는 정지 이미지이며 계정·알림·지역·꾸미기는 서버 미연결 안내를 표시. 로그아웃/탈퇴는 실제 계정이나 데이터를 변경하지 않음
-- 지역 선택·아바타 꾸미기는 안내만 표시. 새로운 정보 화면은 추가하지 않음
+- 고정 도시 배경의 메인, 시간 탐색·재생, 주간 목록과 하단 텍스트 슬라이더, 마이페이지 스택 탐색.
+- SpriteKit 구름·빛·비·눈·혼합·풍속 효과와 Debug 개발자 설정. 셰이더·습도 안개·대기질 연무·기온 색감·고정 시각 낮밤은 사용하지 않는다.
+- LINE Seed KR Regular/Bold를 번들에서 등록하고 WeatherhoodTypography로 사용한다. 시스템 UI와 SF Symbols는 OS 서체다. [공통 서체](https://github.com/kdywjs/weatherhood-specs/blob/main/docs/typography.md)를 따른다.
+- 기존 마이페이지의 로컬 닉네임, 메뉴·계정 미리보기와 iOS 설정 이동을 유지한다. 실제 로그인·지역·계정·알림·캐릭터 저장은 미연동이다.
 
-## 샘플 데이터와 제한
+## 샘플과 미연동
 
-실제 날씨/API/위치 권한/계정은 연결하지 않았습니다.
-피그마와 비교하기 위해 샘플 현재 시각을 **2026-10-10 15:00, Asia/Seoul**로 고정했습니다.
-'오늘'과 초기화 버튼도 이 샘플 시계를 기준으로 작동합니다. 실제 오늘의 예보가 아닙니다.
-서울 중구 버튼을 누르면 이 안내를 확인할 수 있습니다.
+실제 날씨 API는 연결하지 않았다. 기본 시계는 2026-10-10 15:00, Asia/Seoul이며 7일·시간별 값은 샘플이다. 재생은 검토용 1초당 1시간이며 직전 샘플 값을 사용한다. 운영 데이터 보간이나 서버 제공 범위를 뜻하지 않는다.
 
-7일과 시간별 수치는 가상 데이터이며, 공급처의 지원 기간이나 시간 해상도를 확정하지 않습니다.
-재생 속도는 UI 검증용으로 **1초당 1시간**입니다. 중간 시각에는 직전 샘플의 예보를 표시합니다.
-다른 날짜 선택 시 오늘은 샘플 현재 시각, 이후 날짜는 00:00으로 이동하고 정지합니다.
-캐릭터는 지정된 오리너구리로 고정되며 의상/포즈/날씨 애니메이션은 아직 없습니다.
-배경은 원본 레이어 추출본이 아니라 첨부 스크린샷을 참조해 생성한 대체 배경입니다.
-기온의 입체 재질 대신 LINE Seed KR Bold와 색/그림자를 사용합니다. 위치/날짜는 기존 샘플 데이터에 맞춰 유지합니다.
-미세먼지는 이번 승인 보드에 없어 제외했습니다. 천둥번개는 디자인 미리보기만 지원합니다.
-12가지 미리보기는 예보 상태와 분리됩니다. 시간/날짜 변경·재생·초기화를 하면 샘플 예보로 돌아옵니다.
-일출 미리보기는 06:00, 노을 17:30, 맑은 밤 21:00, 비 오는 밤 22:00으로 눈금도 이동합니다.
-더위·추위·폭풍의 실제 임계값은 정하지 않았습니다. 맑은 샘플 예보의 06~07시는 일출, 17~18시는 노을, 06시 이전·18시 이후는 밤이며 UI 데모용 고정 구간입니다. 비도 같은 밤 구간에는 비 오는 밤으로 표시합니다. 흐림은 시간과 무관하게 기존 흐림 장면을 유지합니다. 실제 위치별 일출/일몰 계산이나 모든 날씨×시간대 조합을 구현한 것은 아닙니다.
+캐릭터와 도시 배경은 한 장의 정지 이미지다. 자동 의상·우산·마스크·옷자락 애니메이션은 자산·기준 확정 후 연결해야 한다. 날짜 행의 상세 이동은 없다. 현재 날짜 선택 메뉴도 제거되어 있다.
 
-피그마의 고정 크기는 화면 높이에 맞춰 조정했습니다. 작은 화면·큰 글자는 세로/가로 스크롤로 탐색합니다.
-비·밤 장면은 어두운 테마, 나머지는 밝은 테마를 적용해 시스템 상태 표시줄도 읽을 수 있게 했습니다.
-접근성 큰 글자 설정에서는 헤더/기온, 전체 일러스트, 하단 컨트롤 순으로 스크롤합니다. 시스템 상태 표시줄과 홈 인디케이터는 iOS가 표시합니다.
+일출·일몰은 최신 서버 계약에 추가됐지만 앱에는 아직 연결하지 않았다. 박명 필드도 현재 계약에 없으므로 새벽·해질녘 연동은 후속 작업이다. 12개 Urban 원화와 과거 디자인 자료는 보존하지만 시계로 밤·노을·일출을 임의 선택하지 않는다.
 
-## 구조
+Debug 개발자 모드의 ‘스펙 전체 설정’에서 테스트값을 바꾼다. 미리보기를 켜면 하늘·강수·풍속을 적용하며 수동 비교를 켜면 강도 프리셋을 사용한다. 수치 정보와 효과를 분리한다. 최근·시간별 대기질 선택은 정보 표시용이다. 미리보기 종료 시 기본 샘플로 돌아간다.
 
-- `WeatherhoodApp.swift`: 앱 진입점
-- `WeatherhoodTypography.swift`: 공식 LINE Seed KR 등록, 공통 Regular/Bold 및 Dynamic Type 크기
-- `Fonts/`: 공식 TTF 두 종과 SIL OFL 1.1 고지. 실행 시 CoreText로 프로세스에 등록하며 네트워크·사용자 설치가 필요하지 않음
-- `ContentView.swift`: 스택 탐색과 공유 상태, 마이페이지 및 계정 관리 미리보기
-- `MainWeatherView.swift`: 전체 배경, 헤더/날짜 메뉴, 기온/캐릭터, 시간 눈금, 재생 조작
-- `MainWeatherState.swift`: 샘플 데이터와 선택/재생 상태 로직
-- `WeatherTheme.swift`: 기존 디자인 토큰 및 이전 버전의 SVG 컴포넌트 (보존)
-- `Assets.xcassets`: 현재 도시 장면 12개, 보존한 이전 배경/캐릭터/SVG 및 색상
-- `DesignReference/urban-approved-board.png`: 최종 승인 보드
-- `DesignReference/urban-scenes-v2.json`: 내장 이미지 생성 도구로 만든 각 이미지의 원본 경로와 정확한 프롬프트, 수정 기록
-- `DesignReference/weather-scenes-v1.json`: 원본·생성 에셋·프롬프트 대응. `main-v3.json`은 이전 버전 기록
-- `Tests/MainWeatherStateChecks.swift`: 의존성 없는 상태 로직 검증 프로그램
+## 코드 위치
+
+- `ContentView.swift`: 공유 상태, 스택 탐색, 마이페이지.
+- `MainWeatherState.swift`: 샘플과 재생·시간 탐색.
+- `MainWeatherView.swift`: 고정 배경, 주간 전환, 메인 UI.
+- `WeatherInfoView.swift`: 주간 목록과 기온 범위 막대. 이전 전체 화면 시안 코드가 일부 남아 있으며 현재 진입은 componentOnly이다.
+- `WeatherEffectConfiguration.swift`: 원본 분류·범위·누락과 배경 입력 매핑.
+- `RainBackground.swift`: SpriteKit 입자와 하늘 효과. 초기화 가드·입자 수 제한·비활성화 정지.
+- `WeatherDeveloperSettings.swift`: 테스트값·설정. 설정 화면은 Debug 빌드만 포함한다.
+- `Fonts/`: 공식 LINE Seed KR TTF와 SIL OFL 1.1.
+- `Assets.xcassets`, `DesignReference/`: 현재 이미지 및 과거 시안·검증 자료. 과거 캡처를 현재 동작 검증으로 간주하지 않는다.
 
 ## 실행
 
-앱에서 작성한 텍스트는 공통 서체를 사용합니다. iOS 상태 표시줄·시스템 경고창·메뉴 등 OS 소유 UI와 SF Symbols는 시스템 기본 표시를 유지합니다. Figma의 이미지로 합쳐진 글자는 변경 대상이 아닙니다. Figma는 로컬 플러그인 실행 후 결과 보고를 확인해야 하며 코드 변경만으로 자동 반영되지 않습니다.
+`Weatherhood.xcodeproj` → Weatherhood scheme → iPhone Simulator → Run.
 
-1. `Weatherhood.xcodeproj`를 Xcode에서 엽니다.
-2. `Weatherhood` Scheme과 설치된 iPhone 시뮬레이터를 선택합니다.
-3. Run(⌘R)을 실행합니다.
+iOS 17 이상, 임시 bundle ID `com.example.weatherhood`. 앱 아이콘·배포 서명·실기기 성능 검증은 후속 작업이다. Debug 환경변수 `WEATHERHOOD_DEVELOPER_SETTINGS=1`은 설정 화면을 열고, `WEATHERHOOD_PREVIEW_SCENE`은 보존된 디자인 장면을 명시적으로 확인할 때만 사용한다.
 
-초기 개발 설정: iOS 17.0 이상, iPhone, Bundle ID `com.example.weatherhood`.
-지원 OS 정책과 Bundle ID는 임시값이며, 실기기·배포 전 고유 Bundle ID와 Signing Team을 설정해야 합니다.
-앱 아이콘, 배포 서명, XCTest/UI 테스트 타깃은 아직 미설정입니다.
-
-## 검증
+## 검증 명령
 
 ```sh
-xcodebuild -project Weatherhood.xcodeproj \
-  -scheme Weatherhood -configuration Debug \
-  -destination 'generic/platform=iOS Simulator' \
-  -derivedDataPath /tmp/weatherhood-derived-data \
-  CODE_SIGNING_ALLOWED=NO build
+xcodebuild -quiet -project Weatherhood.xcodeproj -scheme Weatherhood \
+  -configuration Debug -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath /tmp/weatherhood-derived-data CODE_SIGNING_ALLOWED=NO build
 
 xcrun swiftc Weatherhood/MainWeatherState.swift Tests/MainWeatherStateChecks.swift \
   -o /tmp/weatherhood-state-checks
 /tmp/weatherhood-state-checks
+
+xcrun swiftc Weatherhood/MainWeatherState.swift Weatherhood/WeatherDeveloperSettings.swift \
+  Weatherhood/WeatherEffectConfiguration.swift Tests/WeatherEffectMappingChecks.swift \
+  -o /tmp/weatherhood-effect-checks
+/tmp/weatherhood-effect-checks
 ```
 
-상태 검증은 초기값, 날짜·시간 선택, 재생 진행, 드래그 정지, 범위 제한,
-하루 끝 정지, 초기화, 탭/백그라운드 정지용 동작, 샘플 데이터 범위를 확인합니다.
-별도 XCTest 또는 실제 터치 자동화 검증과는 구분합니다.
+## 참고 및 검증
 
-공통 기능 요구사항은 인접한 `weatherhood-specs` 레포가 원본입니다.
+2026-11-15 작업 범위는 주간 전환·날씨 효과·개발자 도구와 추정 효과 제거다. 상태 검사와 효과 매핑 검사에서 강수 분류·범위·집계 기간·경계값·누락·수동 비교·제외 효과를 다룬다. 빌드와 제한된 시뮬레이터 실행 확인은 전체 제스처·시각 조합·실기기 성능·실제 API 연동의 검증을 대신하지 않는다. 시각적인 최종 확인은 사용자에게 남겨둔다.
+
+검증 결과: Debug·Release 시뮬레이터 빌드 및 위 두 Swift 검사 통과. Debug 앱을 부팅된 시뮬레이터에 설치하고 실행 성공을 확인했다. 전체 제스처·날씨 조합의 시각 검증은 미실시다.
