@@ -4,4 +4,6 @@
 
 제품 서체는 LINE Seed KR로 통일한다. `weatherhood-specs/docs/typography.md`를 따르고 앱 텍스트는 `WeatherhoodTypography`를 사용한다. 제목·버튼은 Bold, 본문·설명은 Regular. SF Symbols 및 OS 소유 UI는 예외다.
 
-문서 작성·수정·리뷰 시 [공통 문서 책임 기준](../weatherhood-specs/rules/spec-documentation.md)을 따른다. 기능 요구사항·공통 동작·API 계약은 스펙 레포가 원본이며, 앱 내부 기술 선택·코드와 DB 구조·실행·테스트·배포 문서는 이 레포의 `README.md`와 `docs/`에서 관리한다. 같은 내용을 중복 작성하지 않고 원본을 참조한다.
+문서 작성·수정·리뷰 시 [공통 문서 책임 기준](../weatherhood-specs/rules/spec-documentation.md)을 따른다. 기능별 요구사항과 앱·서버 구현 설계는 스펙 레포의 `specs/<기능>/requirements.md`, `design.md`에 모은다. 앱 작업·테스트 계획은 `app-tasks.md`, 서버 작업·테스트 계획은 `server-tasks.md`에 나누고 API 계약은 `contracts/`를 참조한다.
+
+이 레포의 `README.md`와 `docs/`는 앱 공통 기술 스택·구조 및 실행·테스트 실행·배포·운영을 설명한다. 기능별 DB·외부 연동·처리 설계를 중복 보관하지 않는다. 실제 코드·마이그레이션·자동 테스트는 이 레포에서 관리한다.
